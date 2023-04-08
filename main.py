@@ -1,11 +1,12 @@
+from hcsr04 import SR04
 from machine import Pin
 import time
 
-trigPin = Pin (13, Pin.OUT, 0)
-echoPin = Pin (14, Pin.IN, 0)
+# Define the ultrasonic sensors
+SR_LEFT = SR04()
+SR_RIGHT = SR04()
+SR_FORWARD = SR04()
 
-soundVelocity = 340
-distance = 0
 
 def getSonar():
     trigPin.value(1)
