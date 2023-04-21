@@ -38,13 +38,13 @@ motorB = DCMotor(IN3, IN4, EN2)
 while True:
     obstaculo_derecha = IR1.value()
     obstaculo_izquierda = IR3.value()
-    if obstaculo_derecha:
+    if not obstaculo_derecha:
         motorA.forward(100)
         motorB.stop()
-    elif obstaculo_izquierda:
+    elif not obstaculo_izquierda:
         motorA.stop()
         motorB.forward(100)
-    elif( (not obstaculo_izquierda) and (not obstaculo_derecha)):
+    elif( obstaculo_izquierda and obstaculo_derecha):
         motorA.stop()
         motorB.stop()
     else:
