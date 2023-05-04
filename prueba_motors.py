@@ -1,18 +1,17 @@
-from dcmotor import DCMotor       
+from dcmtor import DCMotor       
 from machine import Pin, PWM   
-from time import sleep     
+from time import sleep_ms   
 frequency = 15000       
-pin1 = Pin(5, Pin.OUT)    
-pin2 = Pin(4, Pin.OUT)     
-enable = PWM(Pin(13), frequency)  
-dc_motor = DCMotor(pin1, pin2, enable)      
+pin1 = Pin(2, Pin.OUT)    
+pin2 = Pin(15, Pin.OUT)     
+enable = PWM(Pin(13), frequency)      
 dc_motor = DCMotor(pin1, pin2, enable, 350, 1023)
 dc_motor.forward(50)    
-sleep(10)        
+sleep_ms(10000)        
 dc_motor.stop()  
-sleep(10)    
+sleep_ms(10000)    
 dc_motor.backwards(100)  
-sleep(10)       
+sleep_ms(10000)       
 dc_motor.forward(60)
-sleep(10)
+sleep_ms(10000)
 dc_motor.stop()
