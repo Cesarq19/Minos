@@ -34,7 +34,7 @@ class DCMotor:
         self.in4.value(1)
         print("atras")
 
-  def turn_left(self,speed):
+  def turn_right(self,speed):
         self.speed=speed
         self.pwm1.duty(self.duty_cycle(self.speed))
         self.pwm2.duty(self.duty_cycle(self.speed))
@@ -43,7 +43,7 @@ class DCMotor:
         self.in3.value(1)
         self.in4.value(0)
 
-  def turn_right(self,speed):
+  def turn_left(self,speed):
         self.speed=speed
         self.pwm1.duty(self.duty_cycle(self.speed))
         self.pwm2.duty(self.duty_cycle(self.speed))

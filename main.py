@@ -1,23 +1,38 @@
-from machine import Pin, PWM
-from time import sleep_ms
-from stepper import DCMotor
+from dcmtor2 import DCMotor       
+from machine import Pin, PWM   
+from time import sleep_ms   
+from mpu6050 import MPU6050
 
-frequency = 15000 
-IN1 = Pin(0, Pin.OUT)
-IN2 = Pin(1, Pin.OUT)
-enable1 = PWM(Pin(4), frequency)
 
-IN3 = Pin(2, Pin.OUT)
-IN4 = Pin(3, Pin.OUT)
-enable2 = PWM(Pin(5),frequency)
+# Ejemplo de uso
+frequency = 10000
+left_pin1 = Pin(2, Pin.OUT)
+left_pin2 = Pin(15, Pin.OUT)
+left_enable = PWM(Pin(22), frequency)
+right_pin1 = Pin(4, Pin.OUT)
+right_pin2 = Pin(18, Pin.OUT)
+right_enable = PWM(Pin(21), frequency)
 
-motorA = DCMotor(IN1, IN2, enable1) # Configurar motor A con los pines 14 y 27
-motorB = DCMotor(IN3, IN4, enable2) # Configurar motor B con los pines 26 y 25
+robot =DCMotor(left_pin1, left_pin2,right_pin1, right_pin2,left_enable,right_enable, 350, 1023)
 
-while True:
-    motorB.forward(100)
-    motorA.forward(100)
-    sleep_ms(2000)
-    motorB.backwards(100)
-    motorA.backwards(100)
-    sleep_ms(2000)
+robot.forward(50)
+sleep_ms(3000)
+robot.stop()
+sleep_ms(1000)
+robot.backward(50)
+sleep_ms(3000)
+robot.stop()
+sleep_ms(1000)
+robot.turn_right(50)
+sleep_ms(3000)
+robot.stop()
+sleep_ms(3000)
+robot.turn_left(40)
+sleep_ms(3000)
+robot.stop()
+
+# Girar a la izquierda con una velocidad de 50 y un ángulo de 90 grados
+#robot.turn_left(50, 90)
+
+# Girar a la derecha con una velocidad de 50 y un ángulo de 90 grados
+#robot.turn_right(50, 90)
