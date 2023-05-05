@@ -15,5 +15,6 @@ try:
     print(accel[0]/16384,"g",accel[1]/16384,"g",accel[2]/16384,"g",
     gyro[0]/16384,"d/s",gyro[1]/16384,"d/s",gyro[2]/16384,"d/s")
     time.sleep_ms(1000)
+    print(mpu.get_angle())
 except:
  pass
