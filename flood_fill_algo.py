@@ -10,9 +10,8 @@ CELL_SIZE = 20
 maze_weights = np.zeros((MAZE_HEIGHT,MAZE_WIDTH))
 maze_vwalls = np.zeros((MAZE_HEIGHT,MAZE_WIDTH))
 maze_hwalls = np.zeros((MAZE_HEIGHT,MAZE_WIDTH))
-print(maze_weights)
-print(maze_vwalls)
 print(maze_hwalls)
+print(maze_vwalls)
 
 def verificar_celdas_vecinas(valores_celdas,peso_celda):
     new_queue=[]
@@ -20,7 +19,7 @@ def verificar_celdas_vecinas(valores_celdas,peso_celda):
         for dx,dy in [(0,-1),(1,0),(0,1),(-1,0)]:
             nx,ny=posx+dx,posy+dy
             # Check if the neighbor cell is within the maze bounds
-            if nx < 0 or nx >= MAZE_WIDTH-1 or ny < 0 or ny >= MAZE_HEIGHT-1:
+            if nx < 0 or nx >= MAZE_WIDTH or ny < 0 or ny >= MAZE_HEIGHT:
                 continue
             # Check if there is a wall between the current cell and the neighbor cell
             
@@ -42,9 +41,12 @@ def flood_fill(start_x,start_y):
     queue=[(start_x,start_y)]
     peso=1
     print(queue)
-    # while True:
-    #     x, y = queue.pop(0)
-    #     pass
+    terminaor=True
+    while terminaor:
+        queue=verificar_celdas_vecinas(queue,peso)
+        peso+=1
+        if len(queue)==0:
+            terminaor=False
 
 # Define the flood fill function
 # def flood_fill(start_x, start_y):
@@ -88,3 +90,4 @@ def flood_fill(start_x,start_y):
 
 # Call the flood fill function with the starting cell coordinates
 flood_fill(4,4)
+print(maze_weights)
