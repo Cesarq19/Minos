@@ -15,7 +15,7 @@ print(maze_vwalls)
 print(maze_hwalls)
 
 def verificar_celdas_vecinas(valores_celdas,peso_celda):
-    global maze_weights
+    new_queue=[]
     for posx,posy in valores_celdas:
         for dx,dy in [(0,-1),(1,0),(0,1),(-1,0)]:
             nx,ny=posx+dx,posy+dy
@@ -33,13 +33,15 @@ def verificar_celdas_vecinas(valores_celdas,peso_celda):
             elif dy == 0 and dx==-1 and maze_hwalls[nx][ny] == 2:
                 continue
 
-            if nx!=4 and ny!=4 and maze_weights[nx][ny]==0:
+            if not(nx==4 and ny==4) and maze_weights[nx][ny]==0:
                 maze_weights[nx][ny]=peso_celda
-    print(maze_weights)
+                new_queue.append((nx,ny))
+    return new_queue
 
 def flood_fill(start_x,start_y):
     queue=[(start_x,start_y)]
     peso=1
+    print(queue)
     # while True:
     #     x, y = queue.pop(0)
     #     pass
@@ -85,4 +87,4 @@ def flood_fill(start_x,start_y):
 #                 queue.append((nx, ny))
 
 # Call the flood fill function with the starting cell coordinates
-verificar_celdas_vecinas([(4,4)],1)
+flood_fill(4,4)
