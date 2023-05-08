@@ -10,9 +10,11 @@ CELL_SIZE = 20
 maze_weights = np.zeros((MAZE_HEIGHT,MAZE_WIDTH))
 maze_vwalls = np.zeros((MAZE_HEIGHT,MAZE_WIDTH))
 maze_hwalls = np.zeros((MAZE_HEIGHT,MAZE_WIDTH))
+maze_vwalls[4][5]=1
+maze_hwalls[4][5]=3
+
 print(maze_hwalls)
 print(maze_vwalls)
-
 def verificar_celdas_vecinas(valores_celdas,peso_celda):
     new_queue=[]
     for posx,posy in valores_celdas:
@@ -23,13 +25,13 @@ def verificar_celdas_vecinas(valores_celdas,peso_celda):
                 continue
             # Check if there is a wall between the current cell and the neighbor cell
             
-            if dx == 0 and dy==1 and maze_vwalls[nx][ny] == 2:#verif
+            if dx == 0 and dy==1 and(maze_vwalls[nx][ny] == 1 or maze_vwalls[nx][ny] == 3) :#verif
                 continue
-            elif dx == 0 and dy==-1 and maze_vwalls[nx][ny] == 1:
+            elif dx == 0 and dy==-1 and (maze_vwalls[nx][ny] == 2 or maze_vwalls[nx][ny] == 3):
                 continue
-            elif dy == 0 and dx==1 and maze_hwalls[nx][ny] ==1:
+            elif dy == 0 and dx==1 and (maze_hwalls[nx][ny] ==1 or maze_vwalls[nx][ny] == 3):
                 continue
-            elif dy == 0 and dx==-1 and maze_hwalls[nx][ny] == 2:
+            elif dy == 0 and dx==-1 and (maze_hwalls[nx][ny] == 2 or maze_vwalls[nx][ny] == 3):
                 continue
 
             if not(nx==4 and ny==4) and maze_weights[nx][ny]==0:
