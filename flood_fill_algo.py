@@ -10,31 +10,40 @@ CELL_SIZE = 20
 maze_weights = np.zeros((MAZE_HEIGHT,MAZE_WIDTH))
 maze_vwalls = np.zeros((MAZE_HEIGHT,MAZE_WIDTH))
 maze_hwalls = np.zeros((MAZE_HEIGHT,MAZE_WIDTH))
-maze_vwalls[4][5]=1
-maze_hwalls[4][5]=3
+#para las matrices vwalls 1| |2 ,ambas es 3
+#para la matriz hwals 1- 2_ , ambas es 3
+
+#ejemplo de llenado de las paredes
+maze_vwalls[1][0]=3
+maze_hwalls[0][1]=3
+maze_vwalls[0][1]=2
 
 print(maze_hwalls)
 print(maze_vwalls)
-def verificar_celdas_vecinas(valores_celdas,peso_celda):
+def verificar_celdas_vecinas(valores_celdas,peso_celda,comienzo_x,comienzo_y):#valores celdas son los valores del queue
     new_queue=[]
     for posx,posy in valores_celdas:
         for dx,dy in [(0,-1),(1,0),(0,1),(-1,0)]:
             nx,ny=posx+dx,posy+dy
+            #nx fila ,ny columna 
             # Check if the neighbor cell is within the maze bounds
             if nx < 0 or nx >= MAZE_WIDTH or ny < 0 or ny >= MAZE_HEIGHT:
                 continue
             # Check if there is a wall between the current cell and the neighbor cell
-            
-            if dx == 0 and dy==1 and(maze_vwalls[nx][ny] == 1 or maze_vwalls[nx][ny] == 3) :#verif
+            #verifica la celda de derecha
+            if dx == 0 and dy==1 and(maze_vwalls[nx][ny] == 1 or maze_vwalls[nx][ny] == 3) :
                 continue
+            #verifica la celda de izquierda
             elif dx == 0 and dy==-1 and (maze_vwalls[nx][ny] == 2 or maze_vwalls[nx][ny] == 3):
                 continue
-            elif dy == 0 and dx==1 and (maze_hwalls[nx][ny] ==1 or maze_vwalls[nx][ny] == 3):
+            #verifica la celda de la abajo
+            elif dy == 0 and dx==1 and (maze_hwalls[nx][ny] ==1 or maze_hwalls[nx][ny] == 3):
                 continue
-            elif dy == 0 and dx==-1 and (maze_hwalls[nx][ny] == 2 or maze_vwalls[nx][ny] == 3):
+            #verifica la celda de la arriba
+            elif dy == 0 and dx==-1 and (maze_hwalls[nx][ny] == 2 or maze_hwalls[nx][ny] == 3):
                 continue
 
-            if not(nx==4 and ny==4) and maze_weights[nx][ny]==0:
+            if not(nx==comienzo_x and ny==comienzo_y) and maze_weights[nx][ny]==0:
                 maze_weights[nx][ny]=peso_celda
                 new_queue.append((nx,ny))
     return new_queue
@@ -45,7 +54,7 @@ def flood_fill(start_x,start_y):
     print(queue)
     terminaor=True
     while terminaor:
-        queue=verificar_celdas_vecinas(queue,peso)
+        queue=verificar_celdas_vecinas(queue,peso,start_x,start_y)
         peso+=1
         if len(queue)==0:
             terminaor=False
