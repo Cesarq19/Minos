@@ -1,52 +1,38 @@
-import machine
-import math
-import time
 from mpu6050 import MPU6050
-# MPU6050 register addresses
-MPU_ADDR = const(0x68)
-MPU_PWR_MGMT1_REG = const(0x6B)
-MPU_ACCEL_XOUTH_REG = const(0x3B)
-MPU_GYRO_XOUTH_REG = const(0x43)
+import time
+ 
+mpu=MPU6050(14,13) #attach the IIC pin(sclpin,sdapin)
+mpu.MPU_Init()     #initialize the MPU6050
+G = 9.8
+time.sleep_ms(1000)#waiting for MPU6050 to work steadily
 
-# MPU6050 configuration
-MPU_SAMPLE_RATE = const(100) # Hz
-MPU_ACCEL_SENSITIVITY = const(16384) # LSB/g
-MPU_GYRO_SENSITIVITY = const(131) # LSB/(deg/s)
-COMPLEMENTARY_FILTER_ALPHA = const(0.98) # filter coefficient
+try:
+    while True:
+        accel=mpu.MPU_Get_Accelerometer()#gain the values of Acceleration
+        gyro=mpu.MPU_Get_Gyroscope()     #gain the values of Gyroscope
+        print("\na/g:\t")
+        print(accel[0],"\t",accel[1],"\t",accel[2],"\t",
+              gyro[0],"\t",gyro[1],"\t",gyro[2])
+        print("a/g:\t")
+        print(accel[0]/16384,"g",accel[1]/16384,"g",accel[2]/16384,"g",
+              gyro[0]/131,"d/s",gyro[1]/131,"d/s",gyro[2]/131,"d/s")
+    
 
-# Initialize I2C bus and MPU6050
+        # Define the time step.
+        dt = 0.01
 
-mpu = MPU6050(13,14)
-
-# Initialize filter state
-angle = 0.0
-gyro_bias = 0.0
-last_time = time.ticks_ms()
-
-# Main loop
-while True:
-    # Read gyroscope and accelerometer data
-    gyro_data = mpu.read_gyro_data() / MPU_GYRO_SENSITIVITY
-    accel_data = mpu.read_accel_data() / MPU_ACCEL_SENSITIVITY
-
-    # Calculate time elapsed since last loop iteration
-    now = time.ticks_ms()
-    delta_time = (now - last_time) / 1000.0
-    last_time = now
-
-    # Apply gyroscope bias correction
-    gyro_data -= gyro_bias
-
-    # Integrate gyroscope data to get angle change
-    angle_change = gyro_data * delta_time
-
-    # Update angle estimate with complementary filter
-    accel_angle = math.atan2(accel_data[1], accel_data[2]) * 180.0 / math.pi
-    angle = COMPLEMENTARY_FILTER_ALPHA * (angle + angle_change) + (1 - COMPLEMENTARY_FILTER_ALPHA) * accel_angle
-
-    # Print angle
-    print("Angle: {:.2f} deg".format(angle))
-
-    # Update gyroscope bias estimate (optional)
-    gyro_bias = COMPLEMENTARY_FILTER_ALPHA * gyro_bias + (1 - COMPLEMENTARY_FILTER_ALPHA) * gyro_data[0]
-    time.sleep_ms(1000)
+        # Integrate the gyroscope data to get the object's angular position.
+        angular_position = 0
+        for i in range(3):
+            angular_position += (gyro[0]/131) * dt
+        print(angular_position)
+        # Use the accelerometer data to filter the object's angular position.
+        accel_data_g = [accel[0]/16384,accel[1]/16384,accel[2]/16384]
+        filtered_angular_position = accel_data_g.copy()
+        for i in range(len(accel)):
+            filtered_angular_position[i] = filtered_angular_position[i - 1] + (accel_data_g[i] - filtered_angular_position[i - 1]) * dt
+        print(filtered_angular_position)
+        time.sleep_ms(1000)
+        
+except:
+    pass

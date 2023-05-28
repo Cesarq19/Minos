@@ -13,10 +13,6 @@ maze_hwalls = np.zeros((MAZE_HEIGHT,MAZE_WIDTH))
 #para las matrices vwalls 1| |2 ,ambas es 3
 #para la matriz hwals 1- 2_ , ambas es 3
 
-#ejemplo de llenado de las paredes
-maze_vwalls[1][0]=3
-maze_hwalls[0][1]=3
-maze_vwalls[0][1]=2
 
 print(maze_hwalls)
 print(maze_vwalls)

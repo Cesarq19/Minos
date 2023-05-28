@@ -3,6 +3,7 @@ from machine import I2C,Pin
 import time
  
 MPU_ADDR    = const(0X68)
+ 
 MPU_DEVICE_ID_REG       = 0x75
 MPU_PWR_MGMT1_REG       = 0x6B
 MPU_PWR_MGMT2_REG       = 0x6C
@@ -146,49 +147,27 @@ class MPU6050(object):
         gx=(buf[0]<<8)|buf[1]
         gy=(buf[2]<<8)|buf[3]
         gz=(buf[4]<<8)|buf[5]
+        if gx >= 0x8000:
+            gx = -((65535-gx)+1)
+        if gy >= 0x8000:
+            gy = -((65535-gy)+1)
+        if gz >= 0x8000:
+            gz = -((65535-gz)+1)
         #print('MPU_Get_Gyroscope: ',gx,gy,gz)
         return gx,gy,gz
+    
     def MPU_Get_Accelerometer(self):
         buf = bytearray(6)
         res = self.Read_Mpu6050_Len(MPU_ACCEL_XOUTH_REG,6,buf)
         ax=(buf[0]<<8)|buf[1]
         ay=(buf[2]<<8)|buf[3]
         az=(buf[4]<<8)|buf[5]
+        if ax >= 0x8000:
+            ax = -((65535-ax)+1)
+        if ay >= 0x8000:
+            ay = -((65535-ay)+1)
+        if az >= 0x8000:
+            az = -((65535-az)+1)
         #print('MPU_Get_Accelerometer: ',ax,ay,az)
         return ax,ay,az
-    def read_raw_data(self):
-        # Read the raw sensor data
-        buffer = bytearray(14)
-        self.Read_Mpu6050_Len(MPU_ACCEL_XOUTH_REG, 14, buffer)
-        ax = (buffer[0] << 8 | buffer[1])
-        ay = (buffer[2] << 8 | buffer[3])
-        az = (buffer[4] << 8 | buffer[5])
-        temp = (buffer[6] << 8 | buffer[7])
-        gx = (buffer[8] << 8 | buffer[9])
-        gy = (buffer[10] << 8 | buffer[11])
-        gz = (buffer[12] << 8 | buffer[13])
-        
-        # Convert the raw sensor data to real values
-        ax = ax / 16384.0
-        ay = ay / 16384.0
-        az = az / 16384.0
-        temp = (temp / 340.00) + 36.53
-        gx = gx / 131.0
-        gy = gy / 131.0
-        gz = gz / 131.0
-        
-        return (ax, ay, az, temp, gx, gy, gz)
-    
-    def get_angle(self):
-        # Read the raw sensor data
-        (ax, ay, az, temp, gx, gy, gz) = self.read_raw_data()
-        
-        # Apply complementary filter
-        pitch = math.atan2(ax, math.sqrt(ay**2 + az**2))
-        roll = math.atan2(ay, math.sqrt(ax**2 + az**2))
-        gyro_pitch = pitch + gy * 0.001
-        gyro_roll = roll + gx * 0.001
-        pitch = pitch * 0.98 + gyro_pitch * 0.02
-        roll = roll * 0.98 + gyro_roll * 0.02
-        
-        return (pitch, roll)
+
