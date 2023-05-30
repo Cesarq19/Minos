@@ -5,6 +5,7 @@ from mpu6050 import MPU6050
 
 
 # Ejemplo de uso
+
 frequency = 10000
 left_pin1 = Pin(2, Pin.OUT)
 left_pin2 = Pin(15, Pin.OUT)
@@ -34,5 +35,3 @@ robot.stop()
 # Girar a la izquierda con una velocidad de 50 y un ángulo de 90 grados
 #robot.turn_left(50, 90)
 
-# Girar a la derecha con una velocidad de 50 y un ángulo de 90 grados
-#robot.turn_right(50, 90)
