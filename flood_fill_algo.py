@@ -96,5 +96,5 @@ def flood_fill(start_x,start_y):
 #                 queue.append((nx, ny))
 
 # Call the flood fill function with the starting cell coordinates
-flood_fill(4,4)
+flood_fill(5, 6)
 print(maze_weights)
