@@ -5,10 +5,10 @@ from machine import Pin
 # Define the object Motor
 class DCMotor(object):
     def __init__(self, in1, in2, in3, in4):
-        self.in1 = Pin(in1)
-        self.in2 = Pin(in2)
-        self.in3 = Pin(in3)
-        self.in4 = Pin(in4)
+        self.in1 = Pin(in1, Pin.OUT)
+        self.in2 = Pin(in2, Pin.OUT)
+        self.in3 = Pin(in3, Pin.OUT)
+        self.in4 = Pin(in4, Pin.OUT)
 
     def forward(self):
         self.in1.value(1)
