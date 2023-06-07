@@ -5,3 +5,9 @@ class Encoder(object):
         self.data = Pin(data, Pin.IN)
         self.resolution = resolution
 
+    def count(self):
+        pass
+
+    def gyro_count(self):
+        pass
+    
