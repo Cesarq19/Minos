@@ -8,8 +8,8 @@ pin_encoder_derecho = Pin(39, Pin.IN)
 # Configuración de los pines para el control de los motores
 pin_motor_izquierdo_1 = Pin(23, Pin.OUT)
 pin_motor_izquierdo_2 = Pin(22, Pin.OUT)
-pin_motor_derecho_1 = Pin(3, Pin.OUT)
-pin_motor_derecho_2 = Pin(1, Pin.OUT)
+pin_motor_derecho_1 = Pin(19, Pin.OUT)
+pin_motor_derecho_2 = Pin(18, Pin.OUT)
 
 # Variables para almacenar el estado anterior de los encoders
 estado_anterior_izquierdo = 0

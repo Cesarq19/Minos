@@ -1,5 +1,6 @@
 from machine import Pin
 import time
+from math import sin, cos
 
 # Configuración de los pines para los encoders
 pin_encoder_izquierdo = Pin(36, Pin.IN)
@@ -8,8 +9,13 @@ pin_encoder_derecho = Pin(39, Pin.IN)
 # Configuración de los pines para el control de los motores
 pin_motor_izquierdo_1 = Pin(23, Pin.OUT)
 pin_motor_izquierdo_2 = Pin(22, Pin.OUT)
-pin_motor_derecho_1 = Pin(3, Pin.OUT)
-pin_motor_derecho_2 = Pin(1, Pin.OUT)
+pin_motor_derecho_1 = Pin(19, Pin.OUT)
+pin_motor_derecho_2 = Pin(18, Pin.OUT)
+
+
+# Variables para almacenar el estado anterior de los encoders
+estado_anterior_izquierdo = 0
+estado_anterior_derecho = 0
 
 # Constantes relacionadas con el encoder
 ranuras_por_vuelta = 24
@@ -33,7 +39,7 @@ angulo_actual = 0  # Ángulo actual de orientación del robot
 
 # Función de interrupción para el encoder izquierdo
 def handle_interrupt_izquierdo(pin):
-    global distancia_recorrida_izquierda
+    global estado_anterior_izquierdo, distancia_recorrida_izquierda, giro_izquierdo
     estado_actual_izquierdo = pin.value()
     if estado_actual_izquierdo != estado_anterior_izquierdo:
         distancia_recorrida_izquierda += 2 * 3.1416 * radio_llanta / ranuras_por_vuelta
@@ -41,7 +47,7 @@ def handle_interrupt_izquierdo(pin):
 
 # Función de interrupción para el encoder derecho
 def handle_interrupt_derecho(pin):
-    global distancia_recorrida_derecha
+    global estado_anterior_derecho, distancia_recorrida_derecha, giro_derecho
     estado_actual_derecho = pin.value()
     if estado_actual_derecho != estado_anterior_derecho:
         distancia_recorrida_derecha += 2 * 3.1416 * radio_llanta / ranuras_por_vuelta
@@ -124,7 +130,7 @@ def actualizar_posicion():
 # Ejecución principal del programa
 while True:
     # Realizar otras tareas si es necesario
-    time.sleep(0.01)  # Esperar un tiempo para no saturar la CPU
+    time.sleep_ms(100)  # Esperar un tiempo para no saturar la CPU
 
     # Imprimir la posición actual del robot
     print("Posición actual (x, y):", posicion_x, ",", posicion_y)
