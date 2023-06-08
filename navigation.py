@@ -5,13 +5,19 @@ import time
 pin_encoder_izquierdo = Pin(36, Pin.IN)
 pin_encoder_derecho = Pin(39, Pin.IN)
 
+# Configuración de los pines para el control de los motores
+pin_motor_izquierdo_1 = Pin(23, Pin.OUT)
+pin_motor_izquierdo_2 = Pin(22, Pin.OUT)
+pin_motor_derecho_1 = Pin(3, Pin.OUT)
+pin_motor_derecho_2 = Pin(1, Pin.OUT)
+
 # Variables para almacenar el estado anterior de los encoders
 estado_anterior_izquierdo = 0
 estado_anterior_derecho = 0
 
 # Constantes relacionadas con el encoder
 ranuras_por_vuelta = 24
-radio_llanta = 3.9  # Supongamos un radio de 5 cm para simplificar
+radio_llanta = 3.9  # Radio de la llanta en cm
 
 # Variables para el cálculo de la distancia recorrida
 distancia_recorrida_izquierda = 0
@@ -49,13 +55,50 @@ def handle_interrupt_derecho(pin):
 pin_encoder_izquierdo.irq(handler=handle_interrupt_izquierdo, trigger=Pin.IRQ_RISING | Pin.IRQ_FALLING)
 pin_encoder_derecho.irq(handler=handle_interrupt_derecho, trigger=Pin.IRQ_RISING | Pin.IRQ_FALLING)
 
+# Funciones para controlar los movimientos del robot
+def mover_adelante():
+    pin_motor_izquierdo_1.on()
+    pin_motor_izquierdo_2.off()
+    pin_motor_derecho_1.on()
+    pin_motor_derecho_2.off()
+
+def mover_atras():
+    pin_motor_izquierdo_1.off()
+    pin_motor_izquierdo_2.on()
+    pin_motor_derecho_1.off()
+    pin_motor_derecho_2.on()
+
+def girar_izquierda():
+    pin_motor_izquierdo_1.off()
+    pin_motor_izquierdo_2.on()
+    pin_motor_derecho_1.on()
+    pin_motor_derecho_2.off()
+
+def girar_derecha():
+    pin_motor_izquierdo_1.on()
+    pin_motor_izquierdo_2.off()
+    pin_motor_derecho_1.off()
+    pin_motor_derecho_2.on()
+
 # Ejecución principal del programa
 while True:
     # Realizar otras tareas si es necesario
     time.sleep(0.01)  # Esperar un tiempo para no saturar la CPU
 
-    # Imprimir los resultados
-    print("Distancia recorrida izquierda:", distancia_recorrida_izquierda, "cm")
-    print("Distancia recorrida derecha:", distancia_recorrida_derecha, "cm")
-    print("Giro izquierdo:", giro_izquierdo)
-    print("Giro derecho:", giro_derecho)
+    # Imprimir los resultados de los encoders
+    print("Distancia recorrida izquierda (encoder):", distancia_recorrida_izquierda, "cm")
+    print("Distancia recorrida derecha (encoder):", distancia_recorrida_derecha, "cm")
+    print("Giro izquierdo (encoder):", giro_izquierdo)
+    print("Giro derecho (encoder):", giro_derecho)
+
+    # Realizar movimientos del robot
+    # Aquí puedes agregar la lógica para determinar los movimientos deseados
+    # Por ejemplo, puedes utilizar condiciones if-else según las entradas del usuario
+
+    # Ejemplo: Mover hacia adelante durante 1 segundo y luego detenerse
+    mover_adelante()
+    time.sleep(1)
+    pin_motor_izquierdo_1.off()
+    pin_motor_izquierdo_2.off()
+    pin_motor_derecho_1.off()
+    pin_motor_derecho_2.off()
