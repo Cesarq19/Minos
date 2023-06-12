@@ -1,6 +1,7 @@
 from machine import Pin
 import time
 from math import sin, cos
+import neopixel
 
 # Configuración de los pines para los encoders
 pin_encoder_izquierdo = Pin(36, Pin.IN)
@@ -12,6 +13,15 @@ pin_motor_izquierdo_2 = Pin(22, Pin.OUT)
 pin_motor_derecho_1 = Pin(19, Pin.OUT)
 pin_motor_derecho_2 = Pin(18, Pin.OUT)
 
+# Configuracion de los pines de los sensores IR
+pin_ir_adelante = Pin(34, Pin.IN)
+pin_ir_derecha = Pin(35, Pin.IN)
+pin_ir_derecha_inclinado = Pin(32, Pin.IN)
+pin_ir_izquierda = Pin(33, Pin.IN)
+pin_ir_izquierda_inclinado = Pin(25, Pin.IN)
+
+#Configuracion del neopixel indicador
+neo = neopixel.NeoPixel(Pin(27, Pin.OUT), 1)
 
 # Variables para almacenar el estado anterior de los encoders
 estado_anterior_izquierdo = 0
@@ -136,5 +146,5 @@ while True:
     print("Posición actual (x, y):", posicion_x, ",", posicion_y)
 
     # Realizar movimientos del robot
-    mover_adelante(20)  # Mover 20 cm hacia adelante
+    mover_adelante(10)  # Mover 20 cm hacia adelante
     girar(90)  # Girar 90 grados a la derecha

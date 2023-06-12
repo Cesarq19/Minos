@@ -18,3 +18,7 @@ os.mount(vfs, '/sd')
 print('Root directory:{}'.format(os.listdir()))
 os.chdir('sd')#aqui indico que estoy dentro de la tarjeta sd y todos los archivos que cree se crearan en la sd, los archivis se manejan normalmente como es en python.
 print('SD Card contains:{}'.format(os.listdir()))
+
+
+
+
