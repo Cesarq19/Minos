@@ -6,10 +6,10 @@ pin_encoder_izquierdo = Pin(36, Pin.IN)
 pin_encoder_derecho = Pin(39, Pin.IN)
 
 # Configuración de los pines para el control de los motores
-pin_motor_izquierdo_1 = Pin(23, Pin.OUT)
-pin_motor_izquierdo_2 = Pin(22, Pin.OUT)
-pin_motor_derecho_1 = Pin(19, Pin.OUT)
-pin_motor_derecho_2 = Pin(18, Pin.OUT)
+pin_motor_izquierdo_1 = Pin(22, Pin.OUT)
+pin_motor_izquierdo_2 = Pin(23, Pin.OUT)
+pin_motor_derecho_1 = Pin(18, Pin.OUT)
+pin_motor_derecho_2 = Pin(19, Pin.OUT)
 
 # Variables para almacenar el estado anterior de los encoders
 estado_anterior_izquierdo = 0
@@ -88,8 +88,6 @@ while True:
     # Imprimir los resultados de los encoders
     print("Distancia recorrida izquierda (encoder):", distancia_recorrida_izquierda, "cm")
     print("Distancia recorrida derecha (encoder):", distancia_recorrida_derecha, "cm")
-    print("Giro izquierdo (encoder):", giro_izquierdo)
-    print("Giro derecho (encoder):", giro_derecho)
 
     # Realizar movimientos del robot
     # Aquí puedes agregar la lógica para determinar los movimientos deseados
