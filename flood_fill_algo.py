@@ -1,7 +1,7 @@
 import numpy as np 
 # Define the dimensions of the maze
-MAZE_WIDTH = 10
-MAZE_HEIGHT = 10
+MAZE_WIDTH = 5
+MAZE_HEIGHT = 5
 
 # Define the cell size in centimeters
 CELL_SIZE = 20
@@ -49,17 +49,19 @@ class flood_fill():
                     new_queue.append((nx,ny))
         return new_queue
 
-    def flood_fill(self,start_x,start_y):
-        """realiza el calculo de los pesos de las celdas usando  el flood fill algorithm """
+    def flood_fill_llenado(self,start_x,start_y):
+        """realiza el calculo de los pesos de las celdas usando  el flood fill algorithm , tomando como datos
+        start_x y start_y que es la ubicacion de la meta"""
         queue=[(start_x,start_y)]#almacenasmos los valores con el que comienza en el queue
+        self.maze_weights=np.zeros((MAZE_HEIGHT,MAZE_WIDTH))
         peso=1#determinamos un peso inicial para dar referencia al inicio
         print(queue)
-        terminaor=True#definimos un terminador del bucle cuando termine todos los pesos en las celdas
-        while terminaor:
+        terminator=True#definimos un terminador del bucle cuando termine todos los pesos en las celdas
+        while terminator:
             queue=self.verificar_celdas_vecinas(queue,peso,start_x,start_y)
             peso+=1
             if len(queue)==0:
-                terminaor=False
+                terminator=False
 
 # Call the flood fill function with the starting cell coordinates
 # flood_fill(5, 6)

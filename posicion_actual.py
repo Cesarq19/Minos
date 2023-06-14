@@ -1,3 +1,4 @@
+
 position =(4,0)#tengo la position del carro
 direccion="norte"#obtengo la direccion del carro 
 recorrido=[]#donde #se almacena el recorrido 
@@ -45,3 +46,5 @@ def actualizar_paredes():
             maze_hwalls[position[0],position[1]]=1
         if derecha and izquierda:
             maze_hwalls[position[0],position[1]]=3
+
+def 
