@@ -1,4 +1,4 @@
-import numpy as np 
+#import ulab 
 # Define the dimensions of the maze
 MAZE_WIDTH = 5
 MAZE_HEIGHT = 5
@@ -7,9 +7,21 @@ MAZE_HEIGHT = 5
 CELL_SIZE = 20
 
 # Define the initial cell values
-maze_weights = np.zeros((MAZE_HEIGHT,MAZE_WIDTH))
-maze_vwalls = np.zeros((MAZE_HEIGHT,MAZE_WIDTH))
-maze_hwalls = np.zeros((MAZE_HEIGHT,MAZE_WIDTH))
+#maze_weights = ulab.numpy.zeros((MAZE_HEIGHT,MAZE_WIDTH))
+#maze_vwalls = ulab.numpy.zeros((MAZE_HEIGHT,MAZE_WIDTH))
+#maze_hwalls = ulab.numpy.zeros((MAZE_HEIGHT,MAZE_WIDTH))
+#prueba con listas
+
+def llenado(fila,columna):
+    matriz=[]
+    for i in range(fila):
+        matriz.append([])
+        for j in range(columna):
+            matriz[i].append(0)
+    return matriz
+maze_weights =llenado(MAZE_HEIGHT,MAZE_WIDTH)
+maze_vwalls = llenado(MAZE_HEIGHT,MAZE_WIDTH)
+maze_hwalls = llenado(MAZE_HEIGHT,MAZE_WIDTH)
 #para las matrices vwalls 1| |2 ,ambas es 3
 #para la matriz hwals 1- 2_ , ambas es 3
 class flood_fill():
@@ -53,7 +65,7 @@ class flood_fill():
         """realiza el calculo de los pesos de las celdas usando  el flood fill algorithm , tomando como datos
         start_x y start_y que es la ubicacion de la meta"""
         queue=[(start_x,start_y)]#almacenasmos los valores con el que comienza en el queue
-        self.maze_weights=np.zeros((MAZE_HEIGHT,MAZE_WIDTH))
+        self.maze_weights=llenado(MAZE_HEIGHT,MAZE_WIDTH)
         peso=1#determinamos un peso inicial para dar referencia al inicio
         print(queue)
         terminator=True#definimos un terminador del bucle cuando termine todos los pesos en las celdas
@@ -66,3 +78,6 @@ class flood_fill():
 # Call the flood fill function with the starting cell coordinates
 # flood_fill(5, 6)
 # print(self.maze_weights)
+#algoritmo=flood_fill()
+#algoritmo.flood_fill_llenado(3,2)
+#print(algoritmo.maze_weights)
