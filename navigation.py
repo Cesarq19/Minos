@@ -113,7 +113,7 @@ class Robot(object):
         # Almacenar el valor del error actual para la próxima iteración
         self.error_anterior = error
 
-    def controlar_motores_giro(self, velocidad_objetivo):
+    def controlar_motores_giro(self, velocidad_objetivo, direccion):
         # Obtener la velocidad actual de los motores (promedio entre las ruedas izquierda y derecha)
         velocidad_actual = (self.distancia_recorrida_izquierda + self.distancia_recorrida_derecha) / 2
 
@@ -133,22 +133,38 @@ class Robot(object):
         # Aquí debes ajustar los valores de los pines de control de los motores
         # para aumentar o disminuir la velocidad y dirección según la señal de control.
 
-        # Ejemplo:
-        if senal_control > 0:
-            # Mover hacia derecha
-            self.pin_motor_izquierdo_1.off()
-            self.pin_motor_izquierdo_2.on()
-            self.pin_motor_derecho_1.on()
-            self.pin_motor_derecho_2.off()
-        else:
-            # Mover hacia izquierda
-            self.pin_motor_izquierdo_1.on()
-            self.pin_motor_izquierdo_2.off()
-            self.pin_motor_derecho_1.off()
-            self.pin_motor_derecho_2.on()
+        if direccion == "derecha":
+            if senal_control > 0:
+                # Mover hacia derecha
+                self.pin_motor_izquierdo_1.off()
+                self.pin_motor_izquierdo_2.on()
+                self.pin_motor_derecho_1.on()
+                self.pin_motor_derecho_2.off()
+            else:
+                # Mover hacia izquierda
+                self.pin_motor_izquierdo_1.on()
+                self.pin_motor_izquierdo_2.off()
+                self.pin_motor_derecho_1.off()
+                self.pin_motor_derecho_2.on()
 
-        # Almacenar el valor del error actual para la próxima iteración
-        self.error_anterior = error
+            # Almacenar el valor del error actual para la próxima iteración
+            self.error_anterior = error
+        else:
+            if senal_control > 0:
+                # Mover hacia izquierda
+                self.pin_motor_izquierdo_1.on()
+                self.pin_motor_izquierdo_2.off()
+                self.pin_motor_derecho_1.off()
+                self.pin_motor_derecho_2.on()
+            else:
+                # Mover hacia derecha
+                self.pin_motor_izquierdo_1.off()
+                self.pin_motor_izquierdo_2.on()
+                self.pin_motor_derecho_1.on()
+                self.pin_motor_derecho_2.off()
+
+            # Almacenar el valor del error actual para la próxima iteración
+            self.error_anterior = error
 
     # Resto de métodos del Robot (mover_adelante, girar, detener_motores, etc.)
 
@@ -186,7 +202,7 @@ class Robot(object):
 
             # Controlar los motores para mover el robot hacia adelante hasta alcanzar la distancia objetivo
             while self.distancia_recorrida_promedio() < ranuras_objetivo:
-                self.controlar_motores_giro(1)  # Velocidad objetivo: 1 cm/s
+                self.controlar_motores_giro(1, "derecha")  # Velocidad objetivo: 1 cm/s
 
             time.sleep_ms(50)
             self.detener_motores()
@@ -201,8 +217,31 @@ class Robot(object):
         self.distancia_recorrida_izquierda = 0
         self.distancia_recorrida_derecha = 0
 
-    def move_left(self):
-        pass
+    def move_left(self,angle):
+        # Calcular el número de ranuras que deben pasar los encoders
+        ranuras_objetivo = (3.06305 * self.ranuras_por_vuelta) / (2 * 3.1416 * self.radio_llanta)
+
+        for i in range(abs(angle // 90)):
+            # Reiniciar las distancias recorridas por las ruedas izquierda y derecha
+            self.distancia_recorrida_izquierda = 0
+            self.distancia_recorrida_derecha = 0
+
+            # Controlar los motores para mover el robot hacia adelante hasta alcanzar la distancia objetivo
+            while self.distancia_recorrida_promedio() < ranuras_objetivo:
+                self.controlar_motores_giro(1, "izquierda")  # Velocidad objetivo: 1 cm/s
+
+            time.sleep_ms(50)
+            self.detener_motores()
+
+            if self.angulo_actual - 90 < 0:
+                self.angulo_actual = 270
+            else:
+                self.angulo_actual -= 90
+
+            time.sleep_ms(50)
+
+        self.distancia_recorrida_izquierda = 0
+        self.distancia_recorrida_derecha = 0
 
     def girar(self, angle):
         # Validacion del sentido de giro
