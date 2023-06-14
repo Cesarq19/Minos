@@ -187,6 +187,7 @@ class Robot:
             time.sleep_ms(2000)  # Esperar un tiempo para no saturar la CPU
             self.girar(90)  # Girar 90 grados a la derecha
             print("------------------------")
+
 # Crear una instancia del robot y ejecutarlo
 robot = Robot()
 robot.ejecutar()

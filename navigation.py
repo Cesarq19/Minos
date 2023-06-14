@@ -1,102 +1,219 @@
-from machine import Pin
+# Importacion de librerias y modulos necesarios
+from machine import Pin, PWM
 import time
+from math import sin, cos
+import neopixel
 
-# Configuración de los pines para los encoders
-pin_encoder_izquierdo = Pin(36, Pin.IN)
-pin_encoder_derecho = Pin(39, Pin.IN)
 
-# Configuración de los pines para el control de los motores
-pin_motor_izquierdo_1 = Pin(22, Pin.OUT)
-pin_motor_izquierdo_2 = Pin(23, Pin.OUT)
-pin_motor_derecho_1 = Pin(18, Pin.OUT)
-pin_motor_derecho_2 = Pin(19, Pin.OUT)
+class Robot(object):
+    def __init__(self):
+        # Configuración de los pines para los encoders
+        self.pin_encoder_izquierdo = Pin(36, Pin.IN)  # Pin del encoder izquierdo
+        self.pin_encoder_derecho = Pin(39, Pin.IN)  # Pin del encoder derecho
 
-# Variables para almacenar el estado anterior de los encoders
-estado_anterior_izquierdo = 0
-estado_anterior_derecho = 0
+        # Configuración de los pines para el control de los motores
+        self.pin_motor_izquierdo_1 = Pin(22, Pin.OUT)  # Pin 1 del motor izquierdo
+        self.pin_motor_izquierdo_2 = Pin(23, Pin.OUT)  # Pin 2 del motor izquierdo
+        self.pin_motor_derecho_1 = Pin(18, Pin.OUT)  # Pin 1 del motor derecho
+        self.pin_motor_derecho_2 = Pin(19, Pin.OUT)  # Pin 2 del motor derecho
 
-# Constantes relacionadas con el encoder
-ranuras_por_vuelta = 24
-radio_llanta = 3.9  # Radio de la llanta en cm
+        # Configuración de los pines de los sensores IR
+        self.pin_ir_adelante = Pin(34, Pin.IN)  # Pin del sensor IR hacia adelante
+        self.pin_ir_derecha = Pin(35, Pin.IN)  # Pin del sensor IR hacia la derecha
+        self.pin_ir_izquierda = Pin(33, Pin.IN)  # Pin del sensor IR hacia la izquierda
 
-# Variables para el cálculo de la distancia recorrida
-distancia_recorrida_izquierda = 0
-distancia_recorrida_derecha = 0
+        # Configuración del neopixel indicador
+        self.neo = neopixel.NeoPixel(Pin(27, Pin.OUT), 1)  # Pin del neopixel indicador
 
-# Variables para el cálculo del giro de los motores
-giro_izquierdo = 0
-giro_derecho = 0
+        # Constantes relacionadas con el encoder
+        self.ranuras_por_vuelta = 12  # Número de ranuras por vuelta del encoder
+        self.radio_llanta = 3.9 / 2 # Radio de la llanta en cm
 
-# Función de interrupción para el encoder izquierdo
-def handle_interrupt_izquierdo(pin):
-    global estado_anterior_izquierdo, distancia_recorrida_izquierda, giro_izquierdo
-    estado_actual_izquierdo = pin.value()
-    if estado_actual_izquierdo != estado_anterior_izquierdo:
-        distancia_recorrida_izquierda += 2 * 3.1416 * radio_llanta / ranuras_por_vuelta
-        if estado_actual_izquierdo == 1:
-            giro_izquierdo += 1
+        # Constantes de control PID
+        self.kp = 1.50  # Ganancia proporcional
+        self.ki = 0.6  # Ganancia integral
+        self.kd = 0.5  # Ganancia derivativa
+
+        # Variables de control PID
+        self.error_anterior = 0  # Valor del error anterior
+        self.integral = 0  # Valor de la integral acumulada
+
+        # Variables para el control de movimiento
+        self.distancia_recorrida_izquierda = 0  # Distancia recorrida por la rueda izquierda
+        self.distancia_recorrida_derecha = 0  # Distancia recorrida por la rueda derecha
+        self.estado_anterior_izquierdo = 0  # Estado anterior del encoder izquierdo
+        self.estado_anterior_derecho = 0  # Estado anterior del encoder derecho
+
+        # Orientacion del robot
+        self.angulo_actual = 0  # Ángulo actual de orientación del robot
+
+        # Configurar las interrupciones para los encoders
+        self.pin_encoder_izquierdo.irq(handler=self.handle_interrupt_izquierdo,
+                                       trigger=Pin.IRQ_RISING | Pin.IRQ_FALLING)  # Configurar interrupción para el
+        # encoder izquierdo
+        self.pin_encoder_derecho.irq(handler=self.handle_interrupt_derecho,
+                                     trigger=Pin.IRQ_RISING | Pin.IRQ_FALLING)  # Configurar interrupción para el
+        # encoder derecho
+
+    def handle_interrupt_izquierdo(self, pin):
+        estado_actual_izquierdo = pin.value()
+        if estado_actual_izquierdo != self.estado_anterior_izquierdo:
+            # Actualizar distancia recorrida por la rueda izquierda
+            self.distancia_recorrida_izquierda += 2 * 3.1416 * self.radio_llanta / (self.ranuras_por_vuelta * 2)
+        self.estado_anterior_izquierdo = estado_actual_izquierdo
+
+    def handle_interrupt_derecho(self, pin):
+        estado_actual_derecho = pin.value()
+        if estado_actual_derecho != self.estado_anterior_derecho:
+            # Actualizar distancia recorrida por la rueda derecha
+            self.distancia_recorrida_derecha += 2 * 3.1416 * self.radio_llanta / (self.ranuras_por_vuelta * 2)
+        self.estado_anterior_derecho = estado_actual_derecho
+
+    def detener_motores(self):
+        # Detener los motores
+        self.pin_motor_izquierdo_1.off()
+        self.pin_motor_izquierdo_2.off()
+        self.pin_motor_derecho_1.off()
+        self.pin_motor_derecho_2.off()
+
+    def controlar_motores(self, velocidad_objetivo):
+        # Obtener la velocidad actual de los motores (promedio entre las ruedas izquierda y derecha)
+        velocidad_actual = (self.distancia_recorrida_izquierda + self.distancia_recorrida_derecha) / 2
+
+        # Calcular el error entre la velocidad objetivo y la velocidad actual
+        error = velocidad_objetivo - velocidad_actual
+
+        # Calcular los componentes proporcional, integral y derivativo
+        componente_p = self.kp * error
+        self.integral += self.ki * error
+        componente_i = self.integral
+        componente_d = self.kd * (error - self.error_anterior)
+
+        # Calcular la señal de control total
+        senal_control = componente_p + componente_i + componente_d
+
+        # Controlar los motores según la señal de control
+        # Aquí debes ajustar los valores de los pines de control de los motores
+        # para aumentar o disminuir la velocidad y dirección según la señal de control.
+
+        # Ejemplo:
+        if senal_control > 0:
+            # Mover hacia adelante
+            self.pin_motor_izquierdo_1.on()
+            self.pin_motor_izquierdo_2.off()
+            self.pin_motor_derecho_1.on()
+            self.pin_motor_derecho_2.off()
         else:
-            giro_izquierdo -= 1
-    estado_anterior_izquierdo = estado_actual_izquierdo
+            # Mover hacia atrás
+            self.pin_motor_izquierdo_1.off()
+            self.pin_motor_izquierdo_2.on()
+            self.pin_motor_derecho_1.off()
+            self.pin_motor_derecho_2.on()
 
-# Función de interrupción para el encoder derecho
-def handle_interrupt_derecho(pin):
-    global estado_anterior_derecho, distancia_recorrida_derecha, giro_derecho
-    estado_actual_derecho = pin.value()
-    if estado_actual_derecho != estado_anterior_derecho:
-        distancia_recorrida_derecha += 2 * 3.1416 * radio_llanta / ranuras_por_vuelta
-        if estado_actual_derecho == 1:
-            giro_derecho += 1
+        # Almacenar el valor del error actual para la próxima iteración
+        self.error_anterior = error
+
+    def controlar_motores_giro(self, velocidad_objetivo):
+        # Obtener la velocidad actual de los motores (promedio entre las ruedas izquierda y derecha)
+        velocidad_actual = (self.distancia_recorrida_izquierda + self.distancia_recorrida_derecha) / 2
+
+        # Calcular el error entre la velocidad objetivo y la velocidad actual
+        error = velocidad_objetivo - velocidad_actual
+
+        # Calcular los componentes proporcional, integral y derivativo
+        componente_p = self.kp * error
+        self.integral += self.ki * error
+        componente_i = self.integral
+        componente_d = self.kd * (error - self.error_anterior)
+
+        # Calcular la señal de control total
+        senal_control = componente_p + componente_i + componente_d
+
+        # Controlar los motores según la señal de control
+        # Aquí debes ajustar los valores de los pines de control de los motores
+        # para aumentar o disminuir la velocidad y dirección según la señal de control.
+
+        # Ejemplo:
+        if senal_control > 0:
+            # Mover hacia derecha
+            self.pin_motor_izquierdo_1.off()
+            self.pin_motor_izquierdo_2.on()
+            self.pin_motor_derecho_1.on()
+            self.pin_motor_derecho_2.off()
         else:
-            giro_derecho -= 1
-    estado_anterior_derecho = estado_actual_derecho
+            # Mover hacia izquierda
+            self.pin_motor_izquierdo_1.on()
+            self.pin_motor_izquierdo_2.off()
+            self.pin_motor_derecho_1.off()
+            self.pin_motor_derecho_2.on()
 
-# Configurar las interrupciones para los encoders
-pin_encoder_izquierdo.irq(handler=handle_interrupt_izquierdo, trigger=Pin.IRQ_RISING | Pin.IRQ_FALLING)
-pin_encoder_derecho.irq(handler=handle_interrupt_derecho, trigger=Pin.IRQ_RISING | Pin.IRQ_FALLING)
+        # Almacenar el valor del error actual para la próxima iteración
+        self.error_anterior = error
 
-# Funciones para controlar los movimientos del robot
-def mover_adelante():
-    pin_motor_izquierdo_1.on()
-    pin_motor_izquierdo_2.off()
-    pin_motor_derecho_1.on()
-    pin_motor_derecho_2.off()
+    # Resto de métodos del Robot (mover_adelante, girar, detener_motores, etc.)
 
-def mover_atras():
-    pin_motor_izquierdo_1.off()
-    pin_motor_izquierdo_2.on()
-    pin_motor_derecho_1.off()
-    pin_motor_derecho_2.on()
+    def distancia_recorrida_promedio(self):
+        # Calcular la distancia recorrida promedio entre las ruedas izquierda y derecha
+        return (self.distancia_recorrida_izquierda + self.distancia_recorrida_derecha) / 2
 
-def girar_izquierda():
-    pin_motor_izquierdo_1.off()
-    pin_motor_izquierdo_2.on()
-    pin_motor_derecho_1.on()
-    pin_motor_derecho_2.off()
+    def mover_adelante(self, distancia):
+        # Reiniciar las distancias recorridas por las ruedas izquierda y derecha
+        self.distancia_recorrida_izquierda = 0
+        self.distancia_recorrida_derecha = 0
 
-def girar_derecha():
-    pin_motor_izquierdo_1.on()
-    pin_motor_izquierdo_2.off()
-    pin_motor_derecho_1.off()
-    pin_motor_derecho_2.on()
+        # Calcular el número de ranuras que deben pasar los encoders
+        ranuras_objetivo = (distancia * self.ranuras_por_vuelta) / (2 * 3.1416 * self.radio_llanta)
 
-# Ejecución principal del programa
-while True:
-    # Realizar otras tareas si es necesario
-    time.sleep(0.01)  # Esperar un tiempo para no saturar la CPU
+        # Controlar los motores para mover el robot hacia adelante hasta alcanzar la distancia objetivo
+        while self.distancia_recorrida_promedio() < ranuras_objetivo:
+            self.controlar_motores(1)  # Velocidad objetivo: 1 cm/s
 
-    # Imprimir los resultados de los encoders
-    print("Distancia recorrida izquierda (encoder):", distancia_recorrida_izquierda, "cm")
-    print("Distancia recorrida derecha (encoder):", distancia_recorrida_derecha, "cm")
+        # Detener los motores una vez que se alcanza la distancia objetivo
+        self.detener_motores()
+        print("Distancia recorrida izquierda:", self.distancia_recorrida_izquierda, "cm")
+        print("Distancia recorrida derecha:", self.distancia_recorrida_derecha, "cm")
+        self.distancia_recorrida_izquierda = 0
+        self.distancia_recorrida_derecha = 0
 
-    # Realizar movimientos del robot
-    # Aquí puedes agregar la lógica para determinar los movimientos deseados
-    # Por ejemplo, puedes utilizar condiciones if-else según las entradas del usuario
+    def move_right(self, angle):
+        # Calcular el número de ranuras que deben pasar los encoders
+        ranuras_objetivo = (3.06305 * self.ranuras_por_vuelta) / (2 * 3.1416 * self.radio_llanta)
 
-    # Ejemplo: Mover hacia adelante durante 1 segundo y luego detenerse
-    mover_adelante()
-    time.sleep(1)
-    pin_motor_izquierdo_1.off()
-    pin_motor_izquierdo_2.off()
-    pin_motor_derecho_1.off()
-    pin_motor_derecho_2.off()
+        for i in range (abs(angle//90)):
+            # Reiniciar las distancias recorridas por las ruedas izquierda y derecha
+            self.distancia_recorrida_izquierda = 0
+            self.distancia_recorrida_derecha = 0
+
+            # Controlar los motores para mover el robot hacia adelante hasta alcanzar la distancia objetivo
+            while self.distancia_recorrida_promedio() < ranuras_objetivo:
+                self.controlar_motores_giro(1)  # Velocidad objetivo: 1 cm/s
+
+            time.sleep_ms(50)
+            self.detener_motores()
+
+            if self.angulo_actual + 90 > 270:
+                self.angulo_actual = 0
+            else:
+                self.angulo_actual += 90
+
+            time.sleep_ms(50)
+
+        self.distancia_recorrida_izquierda = 0
+        self.distancia_recorrida_derecha = 0
+
+    def move_left(self):
+        pass
+
+    def girar(self, angle):
+        # Validacion del sentido de giro
+        if angle > 0:
+            self.move_right(angle)
+        else:
+            self.move_left()
+
+        self.detener_motores()
+
+    def rutina(self):
+        print(self.direccion_actual)
+        time.sleep_ms(10)
+        self.mover_adelante(10)
