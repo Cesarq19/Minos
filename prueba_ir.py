@@ -1,6 +1,6 @@
 # Import necessary libraries
-from machine import Pin
-from time import sleep_ms   
+# from machine import Pin
+# from time import sleep_ms   
 from flood_fill_algo import flood_fill
 
 algoritmo=flood_fill()
@@ -8,77 +8,111 @@ algoritmo.flood_fill_llenado(3,2)
 print(algoritmo.maze_hwalls)
 print(algoritmo.maze_vwalls)
 print(algoritmo.maze_weights)
-position =(4,0)#tengo la position del carro
+position=[4,0]#tengo la position del carro
+
 direccion=0 #obtengo la direccion del carro 
 # Define infrared sensor pins
-LEFT_SENSOR_PIN = 33
-FRONT_SENSOR_PIN = 34
-RIGHT_SENSOR_PIN = 35
+left_sensor_PIN = 33
+front_sensor_PIN = 34
+right_sensor_PIN = 35
 # LEFT_45_SENSOR_PIN = 33
 # RIGHT_45_SENSOR_PIN = 32
 
 # Initialize infrared sensor pins as input pins
-left_sensor = Pin(LEFT_SENSOR_PIN, Pin.IN)
-front_sensor = Pin(FRONT_SENSOR_PIN, Pin.IN)
-right_sensor = Pin(RIGHT_SENSOR_PIN, Pin.IN)
+# left_sensor = Pin(left_sensor_PIN, Pin.IN)
+# front_sensor = Pin(front_sensor_PIN, Pin.IN)
+# right_sensor = Pin(right_sensor_PIN, Pin.IN)
+
+#prueba
+left_sensor=0
+front_sensor=1
+right_sensor=0
+
 #left_45_sensor = Pin(LEFT_45_SENSOR_PIN, Pin.IN)
 #right_45_sensor = Pin(RIGHT_45_SENSOR_PIN, Pin.IN)
 # def sensar_paredes(direccion, position):
-#    left_value = left_sensor.value()
-#    front_value = front_sensor.value()
-#    right_value = right_sensor.value()
+#    left_value = not left_sensor.value()
+#    front_value = not front_sensor.value()
+#    right_value = not right_sensor.value()
 #    return left_value,front_value,right_value
-def actualizar_paredes():
+def actualizar_paredes(position_x,position_y,direccion):
     """esta funcion verifica las paredes y las almacena en las matrices de paredes"""
 
-    if not (front_sensor and right_sensor and left_sensor):#si no encuentra ninguna pared no hace nada 
+    if not (not front_sensor or not right_sensor or not left_sensor):#si no encuentra ninguna pared no hace nada 
         pass
-    elif position=="sur"and (front_sensor or right_sensor or left_sensor):
-        #verifico que no haya valores en la matriz 
-        if algoritmo.maze_hwalls[position[0],position[1]]==0 and algoritmo.maze_vwalls[position[0],position[1]]==0:
-            if front_sensor:
-                algoritmo.maze_hwalls[position[0],position[1]]=2
-            if right_sensor:
-                algoritmo.maze_vwalls[position[0],position[1]]=1
-            if left_sensor:
-                algoritmo.maze_vwalls[position[0],position[1]]=2
-            if right_sensor and left_sensor:
-                algoritmo.maze_vwalls[position[0],position[1]]=3
-    elif position=="oeste"and (front_sensor or right_sensor or left_sensor):
-        if algoritmo.maze_hwalls[position[0],position[1]]==0 and algoritmo.maze_vwalls[position[0],position[1]]==0:
-            if front_sensor:
-                algoritmo.maze_vwalls[position[0],position[1]]=1
-            if right_sensor:
-                algoritmo.maze_hwalls[position[0],position[1]]=1
-            if left_sensor:
-                algoritmo.maze_hwalls[position[0],position[1]]=2
-            if right_sensor and left_sensor:
-                algoritmo.maze_hwalls[position[0],position[1]]=3
-    elif position=="norte"and (front_sensor or right_sensor or left_sensor):
-        if algoritmo.maze_hwalls[position[0],position[1]]==0 and algoritmo.maze_vwalls[position[0],position[1]]==0:
-            if front_sensor:
-                algoritmo.maze_hwalls[position[0],position[1]]=1
-            if right_sensor:
-                algoritmo.maze_vwalls[position[0],position[1]]=2
-            if left_sensor:
-                algoritmo.maze_vwalls[position[0],position[1]]=1
-            if right_sensor and left_sensor:
-                algoritmo.maze_vwalls[position[0],position[1]]=3
-    elif position=="este"and (front_sensor or right_sensor or left_sensor):
-        if algoritmo.maze_hwalls[position[0],position[1]]==0 and algoritmo.maze_vwalls[position[0],position[1]]==0:
-            if front_sensor:
-                algoritmo.maze_vwalls[position[0],position[1]]=2
-            if right_sensor:
-                algoritmo.maze_hwalls[position[0],position[1]]=2
-            if left_sensor:
-                algoritmo.maze_hwalls[position[0],position[1]]=1
-            if right_sensor and left_sensor:
-                algoritmo.maze_hwalls[position[0],position[1]]=3
+    elif algoritmo.maze_hwalls[position_x][position_y]==0 or algoritmo.maze_vwalls[position_x][position_y]==0:
+        if direccion==180 and (not front_sensor or not right_sensor or not left_sensor):
+            #verifico que no haya valores en la matriz 
+                if not front_sensor:
+                    algoritmo.maze_hwalls[position_x][position_y]=2
+                if not right_sensor:
+                    algoritmo.maze_vwalls[position_x][position_y]=1
+                if not left_sensor:
+                    algoritmo.maze_vwalls[position_x][position_y]=2
+                if not right_sensor and not left_sensor:
+                    algoritmo.maze_vwalls[position_x][position_y]=3
+        elif direccion==270 and (not front_sensor or not right_sensor or not left_sensor):
+                if not front_sensor:
+                    algoritmo.maze_vwalls[position_x][position_y]=1
+                if not right_sensor:
+                    algoritmo.maze_hwalls[position_x][position_y]=1
+                if not left_sensor:
+                    algoritmo.maze_hwalls[position_x][position_y]=2
+                if not right_sensor and not left_sensor:
+                    algoritmo.maze_hwalls[position_x][position_y]=3
+        elif direccion==0 and (not front_sensor or not right_sensor or not left_sensor):
+                if not front_sensor:
+                    algoritmo.maze_hwalls[position_x][position_y]=1
+                if not right_sensor:
+                    algoritmo.maze_vwalls[position_x][position_y]=2
+                if not left_sensor:
+                    algoritmo.maze_vwalls[position_x][position_y]=1
+                if not right_sensor and not left_sensor:
+                    algoritmo.maze_vwalls[position_x][position_y]=3
+        elif direccion==90 and (not front_sensor or not right_sensor or not left_sensor):
+                if not front_sensor:
+                    algoritmo.maze_vwalls[position_x][position_y]=2
+                if not right_sensor:
+                    algoritmo.maze_hwalls[position_x][position_y]=2
+                if not left_sensor:
+                    algoritmo.maze_hwalls[position_x][position_y]=1
+                if not right_sensor and not left_sensor:
+                    algoritmo.maze_hwalls[position_x][position_y]=3
 
+def siguiente_posicion(posicion,orientacion):
+    """"la funcion obtiene la siguiente posicion y la orientacion a la que debe esta el carro """
+    avances=[]
+    orientacion_siguiete=orientacion
+    celda_siguiente=(0,0)
+    #dependiendo de la direccion seleccionamos el sentido que vamos a verificar las celdas 
+    if direccion==0:
+        avances=[(-1,0),(0,1),(1,0),(0,-1)]
+    elif direccion==90:
+        avances=[(0,1),(1,0),(0,-1),(-1,0)]
+    elif direccion==180:
+        avances=[(1,0),(0,-1),(-1,0),(0,1)]
+    elif direccion==270:
+        avances=[(0,-1),(-1,0),(0,1),(1,0)]
+    for avance in avances:
+        #obtenemos las posiciones de avance 
+        nx,ny=posicion[0]+avance[0],posicion[1]+avance[1]
+        if orientacion_siguiete>270:
+            orientacion_siguiete=0
+        if nx < 0 or nx >= 5 or ny < 0 or ny >= 5:
+            continue
+        elif algoritmo.maze_weights[nx][ny]==(algoritmo.maze_weights[posicion[0]][posicion[1]]-1):
+            celda_siguiente=(nx,ny)
+            break
+        orientacion_siguiete+=90#aumentamos la orientacion 
+    return celda_siguiente,orientacion_siguiete
 
-print(f"sendor frente :{front_sensor.value()}")
-print(f"sendor derecha :{right_sensor.value()}")
-print(f"sendor izquierda :{left_sensor.value()}")
-actualizar_paredes()
+# print(f"sendor frente :{front_sensor.value()}")
+# print(f"sendor derecha :{right_sensor.value()}")
+# print(f"sendor izquierda :{left_sensor.value()}")
+actualizar_paredes(position[0],position[1],direccion)
+celda_siguiente,siguiente_orientacion=siguiente_posicion(position,direccion)
 print(algoritmo.maze_vwalls)
 print(algoritmo.maze_hwalls)
+print(f"celda siguiente :{celda_siguiente} orientacion siguiente: {siguiente_orientacion}")
+
+

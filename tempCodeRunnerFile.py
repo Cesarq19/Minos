@@ -11,9 +11,11 @@
 # for i in range(4):
 #     print(2)
 #     break
-peso=[]
-for i in range(10):
-    peso.append([])
-    for j in range(10):
-        peso[i].append(0)
-print(peso)
+# peso=[]
+# for i in range(10):
+#     peso.append([])
+#     for j in range(10):
+#         peso[i].append(0)
+# print(peso)
+position=[4,0]#tengo la position del carro
+print(type(position[0]))

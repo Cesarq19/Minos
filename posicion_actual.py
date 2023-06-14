@@ -83,3 +83,10 @@ def siguiente_posicion():
             celda_siguiente=(nx,ny)
             break
     return celda_siguiente,orientacion_siguiete
+
+angulo_giro=orientacion_siguiente-direccion_actual
+girar(angulo_giro)
+if frente==1:
+    avanzar()
+    posicion=celda_siguiente
+    
