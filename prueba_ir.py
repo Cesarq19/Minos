@@ -35,7 +35,7 @@ def actualizar_paredes():
         pass
     elif position=="sur"and (front_sensor or right_sensor or left_sensor):
         #verifico que no haya valores en la matriz 
-        if algoritmo.maze_hwalls[position[0],position[1]]!=0 and algoritmo.maze_vwalls[position[0],position[1]]!=0:
+        if algoritmo.maze_hwalls[position[0],position[1]]==0 and algoritmo.maze_vwalls[position[0],position[1]]==0:
             if front_sensor:
                 algoritmo.maze_hwalls[position[0],position[1]]=2
             if right_sensor:
@@ -45,7 +45,7 @@ def actualizar_paredes():
             if right_sensor and left_sensor:
                 algoritmo.maze_vwalls[position[0],position[1]]=3
     elif position=="oeste"and (front_sensor or right_sensor or left_sensor):
-        if algoritmo.maze_hwalls[position[0],position[1]]!=0 and algoritmo.maze_vwalls[position[0],position[1]]!=0:
+        if algoritmo.maze_hwalls[position[0],position[1]]==0 and algoritmo.maze_vwalls[position[0],position[1]]==0:
             if front_sensor:
                 algoritmo.maze_vwalls[position[0],position[1]]=1
             if right_sensor:
@@ -55,7 +55,7 @@ def actualizar_paredes():
             if right_sensor and left_sensor:
                 algoritmo.maze_hwalls[position[0],position[1]]=3
     elif position=="norte"and (front_sensor or right_sensor or left_sensor):
-        if algoritmo.maze_hwalls[position[0],position[1]]!=0 and algoritmo.maze_vwalls[position[0],position[1]]!=0:
+        if algoritmo.maze_hwalls[position[0],position[1]]==0 and algoritmo.maze_vwalls[position[0],position[1]]==0:
             if front_sensor:
                 algoritmo.maze_hwalls[position[0],position[1]]=1
             if right_sensor:
@@ -65,7 +65,7 @@ def actualizar_paredes():
             if right_sensor and left_sensor:
                 algoritmo.maze_vwalls[position[0],position[1]]=3
     elif position=="este"and (front_sensor or right_sensor or left_sensor):
-        if algoritmo.maze_hwalls[position[0],position[1]]!=0 and algoritmo.maze_vwalls[position[0],position[1]]!=0:
+        if algoritmo.maze_hwalls[position[0],position[1]]==0 and algoritmo.maze_vwalls[position[0],position[1]]==0:
             if front_sensor:
                 algoritmo.maze_vwalls[position[0],position[1]]=2
             if right_sensor:
