@@ -1,6 +1,6 @@
 from machine import Pin
 import time
-from math import sin, cos
+import math
 import neopixel
 
 class Robot:
@@ -135,26 +135,27 @@ class Robot:
         self.distancia_recorrida_derecha = 0
         
         
-    def girar(self, angulo):
-        # Actualizar el ángulo actual de orientación del robot
-        self.angulo_actual += angulo
-
-        # Actualizar la dirección actual del robot según el ángulo
-        if self.angulo_actual % 360 == 0:
-            self.direccion_actual = 'Norte'
-        elif self.angulo_actual % 360 == 90:
-            self.direccion_actual = 'Este'
-        elif self.angulo_actual % 360 == 180:
-            self.direccion_actual = 'Sur'
-        elif self.angulo_actual % 360 == 270:
-            self.direccion_actual = 'Oeste'
-
-        # Controlar los motores para realizar el giro deseado
-        # Aquí debes ajustar los valores de los pines de control de los motores
-        # según la dirección y sentido del giro.
-
-        # Ejemplo:
-        if angulo > 0:
+    def controlar_giro(self, angulo_objetivo):
+        # Calcular el error entre el ángulo objetivo y el ángulo actual
+        error = angulo_objetivo - self.angulo_actual
+        
+        # Ajustar el error al rango [-180, 180]
+        if error > 180:
+            error -= 360
+        elif error < -180:
+            error += 360
+        
+        # Calcular los componentes proporcional, integral y derivativo
+        componente_p = self.kp * error
+        self.integral += self.ki * error
+        componente_i = self.integral
+        componente_d = self.kd * (error - self.error_anterior)
+        
+        # Calcular la señal de control total
+        senal_control = componente_p + componente_i + componente_d
+        
+        # Controlar los motores según la señal de control
+        if senal_control > 0:
             # Girar a la derecha
             self.pin_motor_izquierdo_1.on()
             self.pin_motor_izquierdo_2.off()
@@ -166,19 +167,54 @@ class Robot:
             self.pin_motor_izquierdo_2.on()
             self.pin_motor_derecho_1.on()
             self.pin_motor_derecho_2.off()
+        
+        # Almacenar el valor del error actual para la próxima iteración
+        self.error_anterior = error
+        
+    def girar(self, angulo):
+        # Actualizar el ángulo actual de orientación del robot
+        self.angulo_actual += angulo
 
-        # Esperar un tiempo suficiente para realizar el giro
-        # Aquí debes ajustar el tiempo necesario según el ángulo de giro.
+        # Ajustar el ángulo actual al rango [0, 360]
+        self.angulo_actual %= 360
 
-        # Ejemplo:
-        time.sleep(1)  # Esperar 1 segundo
-
+        # Controlar el giro utilizando el controlador PID
+        self.integral = 0  # Reiniciar la integral acumulada
+        self.error_anterior = 0  # Reiniciar el error anterior
+        
+        angulo_objetivo = self.angulo_actual + angulo
+        angulo_objetivo %= 360
+        
+        while abs(self.angulo_actual - angulo_objetivo) > 1:
+            self.controlar_giro(angulo_objetivo)
+            time.sleep(0.01)  # Pequeña pausa para no saturar la CPU
+        
         # Detener los motores una vez completado el giro
         self.detener_motores()
-
+        
+        def obtener_direccion(self):
+            # Definir los rangos de ángulos para cada dirección cardinal
+            rangos = [ (-45, 45, "Norte"),
+                (45, 135, "Este"),
+                (135, 225, "Sur"),
+                (225, 315, "Oeste"),
+                (315, 405, "Norte")]
+            
+            # Obtener el ángulo actual ajustado al rango [0, 360]
+            angulo_ajustado = self.angulo_actual % 360
+            
+            # Buscar la dirección correspondiente al ángulo actual
+            for rango in rangos:
+                if rango[0] <= angulo_ajustado < rango[1]:
+                    return rango[2]
+            
+            # Si no se encuentra ninguna dirección, devolver 'Desconocida'
+            return 'Desconocida'
+        
+        
     def ejecutar(self):
         while True:
-            print(self.direccion_actual)
+        
             # Realizar otras tareas si es necesario
             time.sleep_ms(4000)  # Esperar un tiempo para no saturar la CPU
             # Realizar movimientos del robot
@@ -187,7 +223,11 @@ class Robot:
             time.sleep_ms(2000)  # Esperar un tiempo para no saturar la CPU
             self.girar(90)  # Girar 90 grados a la derecha
             print("------------------------")
-
+            
+            
 # Crear una instancia del robot y ejecutarlo
 robot = Robot()
+direccion_actual = robot.obtener_direccion()
+print(direccion_actual)  # Esto imprimirá 'Este' si el punto inicial es 'Norte'
 robot.ejecutar()
+
